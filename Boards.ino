@@ -10,7 +10,10 @@
 */
 
 #include <WiFi.h>
+#include <ArduinoJson.h>
 #include <HTTPClient.h>
+
+StaticJsonBuffer<200> jsonBuffer;
 
 const char* ssid = "SKY8E685";
 const char* password = "QFEEEUAV";
@@ -45,30 +48,32 @@ void loop() {
       http.begin(serverName);
       
       // Specify content-type header
-      http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+      http.addHeader("Content-Type", "application/json");
 
-      String temp = "";
+      // -------------------------------- //
+
+      // Make a json memory buffer
+      StaticJsonBuffer<200> jsonBuffer;
+      JsonObject& root = jsonBuffer.createObject();
+
+      // Build your own object tree in memory to store the data you want to send in the request
       
-      temp.concat("{"); 
-      temp.concat("'LOCATION1': {"); 
+      //make an array under location1
+      JsonObject& data = root.createNestedObject("LOCATION1");
+      data.set("Temperature", random(0, 100));
+      data.set("Humidity", random(0, 100));
+      data.set("CO2", random(0, 100));
       
-        temp.concat("'Temperature':"); 
-        temp.concat(random(0, 100)); 
-        temp.concat(",");
+      // Generate the JSON string
+      root.printTo(Serial);
 
-        temp.concat("'Humidity':"); 
-        temp.concat(random(0, 100)); 
-        temp.concat(",");
-
-        temp.concat("'CO2':"); 
-        temp.concat(random(0, 100)); 
-
-      temp.concat("}"); 
-      temp.concat("}"); 
+      // -----------------------------------// 
     
-
+      String output;
+      serializeJson(root, output);
+  
       // Send HTTP POST request
-      int httpResponseCode = http.POST(temp);
+      int httpResponseCode = http.POST(output);
       
       /*
       // If you need an HTTP request with a content type: application/json, use the following:
@@ -78,6 +83,8 @@ void loop() {
       // Send HTTP POST request
       int httpResponseCode = http.POST(httpRequestData);
       */
+
+      Serial.print(temp);
      
       Serial.print("HTTP Response code: ");
       Serial.println(httpResponseCode);
