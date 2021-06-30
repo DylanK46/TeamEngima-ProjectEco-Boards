@@ -5,6 +5,9 @@
 #include <Wire.h>
 #include "DHT.h"
 #include "Adafruit_SGP30.h"
+#include <ESPmDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 
 // Define blue led pin
 #define ONBOARD_LED  2
@@ -42,6 +45,10 @@ uint32_t getAbsoluteHumidity(float temperature, float humidity) {
 // On setup,
 void setup() {
 
+  // Init wifi mode
+  WiFi.mode(WIFI_STA);
+  Serial.println("WIFI   > Initialising");
+  
   // Start Serial at 115200 baud
   Serial.begin(115200);
   Serial.println("SERIAL > Started Serial");
@@ -84,6 +91,40 @@ void setup() {
 
   pinMode(ONBOARD_LED,OUTPUT);
   Serial.println("LEDS   > Leds initialised");
+
+  // Initialise OTA Updates
+  ArduinoOTA.setHostname("TEAMENIGMA - LOCATION1");
+  ArduinoOTA.setPassword("");
+  Serial.println("OTA    > Hostname and Auth initialised");
+  
+  ArduinoOTA
+    .onStart([]() {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+        type = "sketch";
+      else // U_SPIFFS
+        type = "filesystem";
+
+      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+      Serial.println("OTA    > Start updating " + type);
+    })
+    .onEnd([]() {
+      Serial.println("\nEnd");
+    })
+    .onProgress([](unsigned int progress, unsigned int total) {
+      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+    })
+    .onError([](ota_error_t error) {
+      Serial.printf("Error[%u]: ", error);
+      if (error == OTA_AUTH_ERROR) Serial.println("OTA    > Auth Failed");
+      else if (error == OTA_BEGIN_ERROR) Serial.println("OTA    > Begin Failed");
+      else if (error == OTA_CONNECT_ERROR) Serial.println("OTA    > Connect Failed");
+      else if (error == OTA_RECEIVE_ERROR) Serial.println("OTA    > Receive Failed");
+      else if (error == OTA_END_ERROR) Serial.println("OTA    > End Failed");
+    });
+
+  ArduinoOTA.begin();
+  Serial.println("OTA    > Server Started");
   
 }
 
@@ -97,6 +138,7 @@ long lastMsg = 0;
 
 // repeat:
 void loop() {
+     ArduinoOTA.handle();
   
     // If the WIFI is working:
     if(WiFi.status()== WL_CONNECTED){
