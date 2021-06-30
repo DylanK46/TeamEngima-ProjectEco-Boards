@@ -16,9 +16,9 @@ DHT dht(DHT11PIN, DHT11);
 // Define Adafruit sensor as sgp
 Adafruit_SGP30 sgp;
 
-// define ssid and password of device
-const char* ssid = "SKY8E685";
-const char* password = "QFEEEUAV";
+// define ssid and password of wifi
+const char* ssid = "";
+const char* password = "";
 
 // define server to send http requests to
 const char* serverName = "https://dev-test.projecteco.ml/api/v1/rest/input/sensors/";
