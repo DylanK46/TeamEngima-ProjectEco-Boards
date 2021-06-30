@@ -91,67 +91,75 @@ void setup() {
 
 
 
+int counter = 0;
+long lastMsg = 0;
+
 
 // repeat:
 void loop() {
   
     // If the WIFI is working:
     if(WiFi.status()== WL_CONNECTED){
-
-      // Test if Measurement Failed 
-      if (! sgp.IAQmeasure()) {
-        Serial.println("SGP30  > Measurement failed");
-        return;
-      }
-
-      // Test if raw measurement failed
-      if (! sgp.IAQmeasureRaw()) {
-        Serial.println("SGP30  > Raw Measurement failed");
-        return;
-      }
-
-      // Init JSON file and http request
-      DynamicJsonDocument doc(1024);
-      HTTPClient http;
       
-      // Tell http library to send request to server defined in variable "serverName"
-      http.begin(serverName);
-      
-      // Specify content-type header
-      http.addHeader("Content-Type", "application/json");
-
-      // chuck the data in the JSON file
-      doc["LOCATION1"]["Temperature"] = dht.readTemperature();
-      doc["LOCATION1"]["Humidity"] = dht.readHumidity();
-      doc["LOCATION1"]["TVOC"] = sgp.TVOC;
-      doc["LOCATION1"]["eCO2"] = sgp.eCO2;
-      doc["LOCATION1"]["rawH2"] = sgp.rawH2;
-      doc["LOCATION1"]["rawEthanol"] = sgp.rawEthanol;
-
-      // Convert that to a string called "json"
-      String json;
-      serializeJson(doc, json);
-
-      // Send HTTP POST request with that string
-      int httpResponseCode = http.POST(json);
-
-      // Print response to Serial
-      Serial.print("WIFI   > Data Sent - HTTP Response code: ");
-      Serial.println(httpResponseCode);
-        
-      // Free resources by ending request
-      http.end(); 
-    }
-    else {
-
-      // if no wifi, print disconnected.
-      Serial.println("WIFI   > Disconnected");
-    }
-
-    // wait predefined interval
-    digitalWrite(ONBOARD_LED,HIGH);
-    delay(100);
-    digitalWrite(ONBOARD_LED,LOW);
-    delay(postinterval-100);
     
-}
+      long now = millis();
+      if (now - lastMsg > postinterval) {
+        
+        // Timing Stuff
+        lastMsg = now;
+  
+        // Test if Measurement Failed 
+        if (! sgp.IAQmeasure()) {
+          Serial.println("SGP30  > Measurement failed");
+          return;
+        }
+  
+        // Test if raw measurement failed
+        if (! sgp.IAQmeasureRaw()) {
+          Serial.println("SGP30  > Raw Measurement failed");
+          return;
+        }
+  
+        // Init JSON file and http request
+        DynamicJsonDocument doc(1024);
+        HTTPClient http;
+        
+        // Tell http library to send request to server defined in variable "serverName"
+        http.begin(serverName);
+        
+        // Specify content-type header
+        http.addHeader("Content-Type", "application/json");
+  
+        // chuck the data in the JSON file
+        doc["LOCATION1"]["Temperature"] = dht.readTemperature();
+        doc["LOCATION1"]["Humidity"] = dht.readHumidity();
+        doc["LOCATION1"]["TVOC"] = sgp.TVOC;
+        doc["LOCATION1"]["eCO2"] = sgp.eCO2;
+        doc["LOCATION1"]["rawH2"] = sgp.rawH2;
+        doc["LOCATION1"]["rawEthanol"] = sgp.rawEthanol;
+  
+        // Convert that to a string called "json"
+        String json;
+        serializeJson(doc, json);
+  
+        // Send HTTP POST request with that string
+        int httpResponseCode = http.POST(json);
+  
+        // Print response to Serial
+        Serial.print("WIFI   > Data Sent - HTTP Response code: ");
+        Serial.println(httpResponseCode);
+          
+        // Free resources by ending request
+        http.end(); 
+
+        // wait predefined interval
+        digitalWrite(ONBOARD_LED,HIGH);
+        delay(100);
+        digitalWrite(ONBOARD_LED,LOW);
+        counter++;
+        }
+      } else {
+        // if no wifi, print disconnected.
+        Serial.println("WIFI   > Disconnected");
+      }    
+  }
