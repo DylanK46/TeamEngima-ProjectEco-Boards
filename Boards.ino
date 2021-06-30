@@ -179,6 +179,7 @@ void loop() {
         doc["LOCATION1"]["eCO2"] = sgp.eCO2;
         doc["LOCATION1"]["rawH2"] = sgp.rawH2;
         doc["LOCATION1"]["rawEthanol"] = sgp.rawEthanol;
+        doc["token"] = "insert token";
   
         // Convert that to a string called "json"
         String json;
