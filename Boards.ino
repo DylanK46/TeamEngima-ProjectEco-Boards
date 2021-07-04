@@ -26,6 +26,9 @@ const char* password = "";
 // define board location 
 const String boardloc = "";
 
+// define token
+const String authtoken ° "";
+
 // define server to send http requests to
 const char* serverName = "https://dev-test.projecteco.ml/api/v1/rest/input/sensors/";
 
@@ -184,7 +187,7 @@ void loop() {
         doc[boardloc]["eCO2"] = sgp.eCO2;
         doc[boardloc]["rawH2"] = sgp.rawH2;
         doc[boardloc]["rawEthanol"] = sgp.rawEthanol;
-        doc["token"] = "insert token";
+        doc["token"] = authtoken;
 
         // chuck the data to serial monitor
         Serial.print("Temperature: "); Serial.println(dht.readTemperature());
