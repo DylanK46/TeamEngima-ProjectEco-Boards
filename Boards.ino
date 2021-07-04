@@ -23,6 +23,9 @@ Adafruit_SGP30 sgp;
 const char* ssid = "";
 const char* password = "";
 
+// define board location 
+const String boardloc = "";
+
 // define server to send http requests to
 const char* serverName = "https://dev-test.projecteco.ml/api/v1/rest/input/sensors/";
 
@@ -93,7 +96,9 @@ void setup() {
   Serial.println("LEDS   > Leds initialised");
 
   // Initialise OTA Updates
-  ArduinoOTA.setHostname("TEAMENIGMA - LOCATION1");
+  String hostname_str = "TEAMENIGMA - " + boardloc;
+  char* hostname_char_arr = &hostname_str[0];
+  ArduinoOTA.setHostname(hostname_char_arr);
   ArduinoOTA.setPassword("");
   Serial.println("OTA    > Hostname and Auth initialised");
   
@@ -173,13 +178,22 @@ void loop() {
         http.addHeader("Content-Type", "application/json");
   
         // chuck the data in the JSON file
-        doc["LOCATION1"]["Temperature"] = dht.readTemperature();
-        doc["LOCATION1"]["Humidity"] = dht.readHumidity();
-        doc["LOCATION1"]["TVOC"] = sgp.TVOC;
-        doc["LOCATION1"]["eCO2"] = sgp.eCO2;
-        doc["LOCATION1"]["rawH2"] = sgp.rawH2;
-        doc["LOCATION1"]["rawEthanol"] = sgp.rawEthanol;
+        doc[boardloc]["Temperature"] = dht.readTemperature();
+        doc[boardloc]["Humidity"] = dht.readHumidity();
+        doc[boardloc]["TVOC"] = sgp.TVOC;
+        doc[boardloc]["eCO2"] = sgp.eCO2;
+        doc[boardloc]["rawH2"] = sgp.rawH2;
+        doc[boardloc]["rawEthanol"] = sgp.rawEthanol;
         doc["token"] = "insert token";
+
+        // chuck the data to serial monitor
+        Serial.print("Temperature: "); Serial.println(dht.readTemperature());
+        Serial.print("Humidity: "); Serial.println(dht.readHumidity());
+        Serial.print("TVOC: "); Serial.println(sgp.TVOC);
+        Serial.print("eCO2: "); Serial.println(sgp.eCO2);
+        Serial.print("rawH2: "); Serial.println(sgp.rawH2);
+        Serial.print("rawEthanol: "); Serial.println(sgp.rawEthanol);
+        Serial.println();
   
         // Convert that to a string called "json"
         String json;
