@@ -27,7 +27,7 @@ const char* password = "";
 const String boardloc = "";
 
 // define token
-const String authtoken ° "";
+const String authtoken = "";
 
 // define server to send http requests to
 const char* serverName = "https://dev-test.projecteco.ml/api/v1/rest/input/sensors/";
